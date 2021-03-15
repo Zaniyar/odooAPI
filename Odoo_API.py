@@ -14,8 +14,9 @@ def listContacts(offset, limit):
     """
     contactID = models.execute_kw(db, uid, password,'res.partner', 'search', [[]],{'offset':offset,'limit':limit})
     contacts = models.execute_kw(db, uid, password, 'res.partner', 'read', [contactID],{'fields': ['id','name']})
-    for contact in contacts:
-        print(contact)
+    #for contact in contacts:
+    #   print(contact)
+    return contacts
 
 def getContactByID(contactID):
     contact = models.execute_kw(db, uid, password, 'res.partner', 'read', [contactID],{'fields': ['id','name']})
@@ -49,10 +50,22 @@ models = xmlrpc.client.ServerProxy('{}/xmlrpc/2/object'.format(url))
 ## Authentification done
 ## -----------------------------------------------------------------------------------
 
-listContacts(0,40)
-ContactId = newContact("Philipp","079 100000", "email")
-print(ContactId)
-listContacts(0,40)
+from typing import Optional
+
+from fastapi import FastAPI
+
+app = FastAPI()
+
+
+@app.get("/{item_id}")
+def read_root(item_id: int):
+    # return {"Hello": "World"} 
+    return listContacts(0,item_id)
+
+
+@app.get("/items/{item_id}")
+def read_item(item_id: int, q: Optional[str] = None):
+    return {"item_id": item_id, "q": q}
 
 
 
